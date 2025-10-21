@@ -3,15 +3,22 @@ package com.crawler.crawler.services;
 
 import com.crawler.crawler.component.PageParser;
 import com.crawler.crawler.component.WebPageFetcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+// todo : add test for this class .
+
 @Service
 public class CrawlerServices {
+  private static final Logger log = LoggerFactory.getLogger(CrawlerServices.class);
   private final WebPageFetcher webPageFetcher;
   private final PageParser pageParser;
+
   public CrawlerServices(WebPageFetcher webPageFetcher,PageParser pageParser) {
     this.webPageFetcher = webPageFetcher ;
     this.pageParser = pageParser;
@@ -25,29 +32,71 @@ public class CrawlerServices {
 
   // TODO : this should be set by the user . of the api with limitaion ofc, tier or the use and paid or no .....;
   private static final int MAX_DEPTH = 5;
-  private static final int MAX_PAGES = 10;
+  private static final int MAX_PAGES = 15;
 
   public void crawl(String StartUrl){
     crawl(StartUrl , MAX_DEPTH );
   }
 
+  // Fixme : this function doesn't work is unclear and probably we need to recode it with my own code .
   public void crawl(String startURL , int maxDepth) {
     // one thread for now
     visitedUrls.clear();
     urlQueue.clear();
-    //adding the first url to the queue .
+    //adding the first url to the queue.
     urlQueue.add(startURL);
 
+    int countStartUrlIsValid =0;
     int visitedPages = 0;
-
+    System.out.println("");
     while (visitedPages <= MAX_PAGES &&  !urlQueue.isEmpty()){
+      String currUrl = urlQueue.poll();
+      if (visitedUrls.contains(startURL)) {
+        continue;
+      }
+      try {
+        //start :
+        String rawHtml ="";
 
-
-      visitedPages++;
+        try {
+          rawHtml = webPageFetcher.fetchPage(currUrl);
+        } catch (RestClientException ex ){
+          if (visitedPages == 0){
+            log.error("StartUrl Not Valid.");
+            break;
+          }else {
+            log.error("link error.");
+            continue;
+          }
+        }
+        if (rawHtml  == null || rawHtml.isEmpty()){
+          continue;
+        }
+        visitedUrls.add(currUrl);
+        List<String> extractedLinks = pageParser.extractLinksFromHtml(rawHtml , currUrl);
+        if (visitedPages < MAX_PAGES){
+          for (String link : extractedLinks ) {
+            if(shouldCrawl(link , startURL)){
+              urlQueue.add(link);
+            }
+          }
+        }
+        System.out.println("url queue:");
+        System.out.println(urlQueue);
+        visitedPages++;
+      } catch (Exception e){
+        log.error("e: ", e);
+      }
     }
+  }
 
-    String rawHtml = webPageFetcher.fetchPage(startURL);
-    List<String> extractedLinks = pageParser.extractLinksFromHtml(rawHtml);
-    System.out.println(extractedLinks);
+  public void printCrawlResults(){
+    System.out.println(visitedUrls);
+  }
+
+  private boolean shouldCrawl(String url , String startUrl){
+    // todo : add more robust validation for if we should crawl it .
+    return url != null && !url.isEmpty() && !visitedUrls.contains(url);
+//    return true;
   }
 }

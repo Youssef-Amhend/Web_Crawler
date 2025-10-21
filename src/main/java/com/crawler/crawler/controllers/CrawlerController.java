@@ -20,6 +20,7 @@ public class CrawlerController {
   @PostMapping()
   public String StartURL (@RequestBody String URL) {
     crawlerServices.crawl(URL);
+    crawlerServices.printCrawlResults();
     return "Starting URL";
   }
 }
