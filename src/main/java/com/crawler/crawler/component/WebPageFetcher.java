@@ -7,6 +7,9 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 
+// this class works but there might be a better way of doing it .
+// todo : Search how to do it .
+
 @Component
 public class WebPageFetcher {
   private static final Logger log = LoggerFactory.getLogger(WebPageFetcher.class);
