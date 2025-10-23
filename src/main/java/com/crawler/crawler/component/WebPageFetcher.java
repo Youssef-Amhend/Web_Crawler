@@ -33,7 +33,6 @@ public class WebPageFetcher {
           .uri(URI)
           .retrieve()
           .body(String.class);
-      System.out.println(htmlResult);
       visitedPages++;
       return htmlResult;
     } catch (RestClientException e){

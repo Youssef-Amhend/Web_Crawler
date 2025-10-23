@@ -14,12 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 // todo : add test for this class .
 
 @Service
-public class CrawlerServices {
-  private static final Logger log = LoggerFactory.getLogger(CrawlerServices.class);
+public class CrawlerService {
+  private static final Logger log = LoggerFactory.getLogger(CrawlerService.class);
   private final WebPageFetcher webPageFetcher;
   private final PageParser pageParser;
 
-  public CrawlerServices(WebPageFetcher webPageFetcher,PageParser pageParser) {
+  public CrawlerService(WebPageFetcher webPageFetcher, PageParser pageParser) {
     this.webPageFetcher = webPageFetcher ;
     this.pageParser = pageParser;
   }
@@ -48,10 +48,9 @@ public class CrawlerServices {
 
     int countStartUrlIsValid =0;
     int visitedPages = 0;
-    System.out.println("");
     while (visitedPages <= MAX_PAGES &&  !urlQueue.isEmpty()){
       String currUrl = urlQueue.poll();
-      if (visitedUrls.contains(startURL)) {
+      if (visitedUrls.contains(currUrl)) {
         continue;
       }
       try {
@@ -62,10 +61,10 @@ public class CrawlerServices {
           rawHtml = webPageFetcher.fetchPage(currUrl);
         } catch (RestClientException ex ){
           if (visitedPages == 0){
-            log.error("StartUrl Not Valid.");
+            log.warn("StartUrl Not Valid.");
             break;
           }else {
-            log.error("link error.");
+            log.warn("link error.");
             continue;
           }
         }
@@ -76,7 +75,7 @@ public class CrawlerServices {
         List<String> extractedLinks = pageParser.extractLinksFromHtml(rawHtml , currUrl);
         if (visitedPages < MAX_PAGES){
           for (String link : extractedLinks ) {
-            if(shouldCrawl(link , startURL)){
+            if(shouldCrawl(link , startURL) && !visitedUrls.contains(link)){
               urlQueue.add(link);
             }
           }
@@ -85,7 +84,8 @@ public class CrawlerServices {
         System.out.println(urlQueue);
         visitedPages++;
       } catch (Exception e){
-        log.error("e: ", e);
+        //todo : fix the exception handling and make it clear .
+        log.warn("e: ", e);
       }
     }
   }
@@ -97,6 +97,5 @@ public class CrawlerServices {
   private boolean shouldCrawl(String url , String startUrl){
     // todo : add more robust validation for if we should crawl it .
     return url != null && !url.isEmpty() && !visitedUrls.contains(url);
-//    return true;
   }
 }
