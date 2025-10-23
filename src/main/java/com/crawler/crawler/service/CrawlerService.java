@@ -1,8 +1,8 @@
-package com.crawler.crawler.services;
+package com.crawler.crawler.service;
 
 
-import com.crawler.crawler.component.PageParser;
-import com.crawler.crawler.component.WebPageFetcher;
+import com.crawler.crawler.component.fetcher.PageFetcher;
+import com.crawler.crawler.component.parser.PageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class CrawlerService {
   private static final Logger log = LoggerFactory.getLogger(CrawlerService.class);
-  private final WebPageFetcher webPageFetcher;
+  private final PageFetcher pageFetcher;
   private final PageParser pageParser;
 
-  public CrawlerService(WebPageFetcher webPageFetcher, PageParser pageParser) {
-    this.webPageFetcher = webPageFetcher ;
+  public CrawlerService(PageFetcher pageFetcher, PageParser pageParser) {
+    this.pageFetcher = pageFetcher;
     this.pageParser = pageParser;
   }
 
@@ -58,7 +58,7 @@ public class CrawlerService {
         String rawHtml ="";
 
         try {
-          rawHtml = webPageFetcher.fetchPage(currUrl);
+          rawHtml = pageFetcher.fetchPage(currUrl);
         } catch (RestClientException ex ){
           if (visitedPages == 0){
             log.warn("StartUrl Not Valid.");

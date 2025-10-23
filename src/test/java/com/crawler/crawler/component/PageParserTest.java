@@ -1,5 +1,6 @@
 package com.crawler.crawler.component;
 
+import com.crawler.crawler.component.parser.PageParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;

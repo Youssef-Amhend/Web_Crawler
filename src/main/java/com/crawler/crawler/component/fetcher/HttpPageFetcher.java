@@ -1,4 +1,4 @@
-package com.crawler.crawler.component;
+package com.crawler.crawler.component.fetcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,21 +11,22 @@ import org.springframework.web.client.RestClientException;
 // todo : Search how to do it .
 
 @Component
-public class WebPageFetcher {
-  private static final Logger log = LoggerFactory.getLogger(WebPageFetcher.class);
+public class HttpPageFetcher implements PageFetcher {
+  private static final Logger log = LoggerFactory.getLogger(HttpPageFetcher.class);
   // this is to fetch the page .
   // todo : use http client instead of RestClient .
   // todo : add error verification .
   // todo : add logging .
 
   private final RestClient restClient;
-  public WebPageFetcher(RestClient restClient){
+  public HttpPageFetcher(RestClient restClient){
     this.restClient = restClient;
   }
 
   // to track the call , i want to check the startUrl and if it's not valid then we should send that the link is not valid
   int visitedPages =0;
 
+  @Override
   public String fetchPage(String URI) {
     String htmlResult;
     try {

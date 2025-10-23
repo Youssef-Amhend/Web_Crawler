@@ -1,7 +1,7 @@
 package com.crawler.crawler.controllers;
 
 
-import com.crawler.crawler.services.CrawlerService;
+import com.crawler.crawler.service.CrawlerService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
